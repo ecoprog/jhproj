@@ -2,22 +2,22 @@
     "jhprojApp": {
         "weight" : {
             "home": {
-                "title": "Weights",
-                "createLabel": "Weight erstellen",
-                "createOrEditLabel": "Weight erstellen oder bearbeiten"
+                "title": "Gewicht",
+                "createLabel": "Gewicht erstellen",
+                "createOrEditLabel": "Gewicht erstellen oder bearbeiten"
             },
-            "created": "Weight erstellt mit ID {{ param }}",
-            "updated": "Weight aktualisiert mit ID {{ param }}",
-            "deleted": "Weight gelöscht mit ID {{ param }}",
+            "created": "Gewicht erstellt mit ID {{ param }}",
+            "updated": "Gewicht aktualisiert mit ID {{ param }}",
+            "deleted": "Gewicht gelöscht mit ID {{ param }}",
             "delete": {
-                "question": "Soll Weight {{ id }} wirklich dauerhaft gelöscht werden?"
+                "question": "Soll Gewicht {{ id }} wirklich dauerhaft gelöscht werden?"
             },
             "detail": {
-                "title": "Weight"
+                "title": "Gewicht"
             },
-            "timestamp": "Timestamp",
-            "weight": "Weight",
-            "user": "User"
+            "timestamp": "Zeitstempel",
+            "weight": "Gewicht",
+            "user": "Nutzer"
         }
     }
 }

@@ -2,23 +2,23 @@
     "jhprojApp": {
         "bloodPressure" : {
             "home": {
-                "title": "Blood Pressures",
-                "createLabel": "Blood Pressure erstellen",
-                "createOrEditLabel": "Blood Pressure erstellen oder bearbeiten"
+                "title": "Bluthochdruck",
+                "createLabel": "Bluthochdruck erstellen",
+                "createOrEditLabel": "Bluthochdruck erstellen oder bearbeiten"
             },
-            "created": "Blood Pressure erstellt mit ID {{ param }}",
-            "updated": "Blood Pressure aktualisiert mit ID {{ param }}",
-            "deleted": "Blood Pressure gelöscht mit ID {{ param }}",
+            "created": "Bluthochdruck erstellt mit ID {{ param }}",
+            "updated": "Bluthochdruck aktualisiert mit ID {{ param }}",
+            "deleted": "Bluthochdruck gelöscht mit ID {{ param }}",
             "delete": {
-                "question": "Soll Blood Pressure {{ id }} wirklich dauerhaft gelöscht werden?"
+                "question": "Soll der Bluthochdruck {{ id }} wirklich dauerhaft gelöscht werden?"
             },
             "detail": {
-                "title": "Blood Pressure"
+                "title": "Bluthochdruck"
             },
-            "timestamp": "Timestamp",
-            "systolic": "Systolic",
-            "diastolic": "Diastolic",
-            "user": "User"
+            "timestamp": "Zeitstemple",
+            "systolic": "Systolisch",
+            "diastolic": "Diastolisch",
+            "user": "Nutzer"
         }
     }
 }
