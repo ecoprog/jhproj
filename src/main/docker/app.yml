@@ -6,9 +6,14 @@ services:
             - SPRING_PROFILES_ACTIVE=prod,swagger
             - SPRING_DATASOURCE_URL=jdbc:mysql://jhproj-mysql:3306/jhproj?useUnicode=true&characterEncoding=utf8&useSSL=false
             - JHIPSTER_SLEEP=10 # gives time for the database to boot before the application
+            - SPRING_DATA_ELASTICSEARCH_CLUSTER_NODES=jhproj-elasticsearch:9300
         ports:
             - 8080:8080
     jhproj-mysql:
         extends:
             file: mysql.yml
             service: jhproj-mysql
+    jhproj-elasticsearch:
+        extends:
+            file: elasticsearch.yml
+            service: jhproj-elasticsearch
