@@ -211,3 +211,10 @@ ui bootstrap tweaks
 }
 
 /* jhipster-needle-scss-add-main JHipster will add new css style */
+
+/* ============================================================================
+Custom styles
+============================================================================= */
+.container-fluid {
+border: 1px solid red;
+}
