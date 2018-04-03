@@ -4,7 +4,8 @@
             "home": {
                 "title": "Weights",
                 "createLabel": "Crear nuevo Weight",
-                "createOrEditLabel": "Crear o editar Weight"
+                "createOrEditLabel": "Crear o editar Weight",
+                "search": "Search for Weight"
             },
             "created": "Un nuevo Weight ha sido creado con el identificador {{ param }}",
             "updated": "Un Weight ha sido actualizado con el identificador {{ param }}",

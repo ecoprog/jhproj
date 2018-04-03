@@ -18,8 +18,29 @@
                     </span>
                 </a>
             </li>
+            <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                <a class="nav-link" routerLink="newlink" (click)="collapseNavbar()">
+                    <span>
+                        <span jhiTranslate="global.menu.newlink">Newlink</span>
+                    </span>
+                </a>
+            </li>
+            <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                <a class="nav-link" routerLink="newlink" (click)="collapseNavbar()">
+                    <span>
+                        <span jhiTranslate="global.menu.cart">Cart</span>
+                    </span>
+                </a>
+            </li>
+            <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                <a class="nav-link" routerLink="newlink" (click)="collapseNavbar()">
+                    <span>
+                        <span jhiTranslate="global.menu.component">Component</span>
+                    </span>
+                </a>
+            </li>
             <!-- jhipster-needle-add-element-to-menu - JHipster will add new menu items here -->
-            <li *ngSwitchCase="true" ngbDropdown class="nav-item dropdown pointer" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+            <li *ngSwitchCase="false" ngbDropdown class="nav-item dropdown pointer" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
                 <a class="nav-link dropdown-toggle" ngbDropdownToggle href="javascript:void(0);" id="entity-menu">
                     <span>
                         <i class="fa fa-th-list" aria-hidden="true"></i>
@@ -29,6 +50,30 @@
                     </span>
                 </a>
                 <ul class="dropdown-menu" ngbDropdownMenu>
+                    <li>
+                        <a class="dropdown-item" routerLink="points" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="collapseNavbar()">
+                            <i class="fa fa-fw fa-asterisk" aria-hidden="true"></i>
+                            <span jhiTranslate="global.menu.entities.points">Points</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" routerLink="weight" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="collapseNavbar()">
+                            <i class="fa fa-fw fa-asterisk" aria-hidden="true"></i>
+                            <span jhiTranslate="global.menu.entities.weight">Weight</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" routerLink="blood-pressure" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="collapseNavbar()">
+                            <i class="fa fa-fw fa-asterisk" aria-hidden="true"></i>
+                            <span jhiTranslate="global.menu.entities.bloodPressure">Blood Pressure</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" routerLink="preferences" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="collapseNavbar()">
+                            <i class="fa fa-fw fa-asterisk" aria-hidden="true"></i>
+                            <span jhiTranslate="global.menu.entities.preferences">Preferences</span>
+                        </a>
+                    </li>
                     <!-- jhipster-needle-add-entity-to-menu - JHipster will add entities to the menu here -->
                 </ul>
             </li>
@@ -80,6 +125,12 @@
                         <a class="dropdown-item" routerLink="docs" routerLinkActive="active" (click)="collapseNavbar()">
                             <i class="fa fa-fw fa-book" aria-hidden="true"></i>
                             <span jhiTranslate="global.menu.admin.apidocs">API</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" routerLink="elasticsearch-reindex" routerLinkActive="active" (click)="collapseNavbar()">
+                            <i class="fa fa-fw fa-search" aria-hidden="true"></i>&nbsp;
+                            <span jhiTranslate="global.menu.admin.elasticsearch-reindex">Elasticsearch Reindex</span>
                         </a>
                     </li>
                     <!-- jhipster-needle-add-element-to-admin-menu - JHipster will add entities to the admin menu here -->

@@ -4,6 +4,7 @@ import com.jhproj.JhprojApp;
 
 import com.jhproj.domain.Points;
 import com.jhproj.repository.PointsRepository;
+import com.jhproj.repository.search.PointsSearchRepository;
 import com.jhproj.web.rest.errors.ExceptionTranslator;
 
 import org.junit.Before;
@@ -58,6 +59,9 @@ public class PointsResourceIntTest {
     private PointsRepository pointsRepository;
 
     @Autowired
+    private PointsSearchRepository pointsSearchRepository;
+
+    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Autowired
@@ -76,7 +80,7 @@ public class PointsResourceIntTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final PointsResource pointsResource = new PointsResource(pointsRepository);
+        final PointsResource pointsResource = new PointsResource(pointsRepository, pointsSearchRepository);
         this.restPointsMockMvc = MockMvcBuilders.standaloneSetup(pointsResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -101,6 +105,7 @@ public class PointsResourceIntTest {
 
     @Before
     public void initTest() {
+        pointsSearchRepository.deleteAll();
         points = createEntity(em);
     }
 
@@ -124,6 +129,10 @@ public class PointsResourceIntTest {
         assertThat(testPoints.getMeals()).isEqualTo(DEFAULT_MEALS);
         assertThat(testPoints.getAlcohol()).isEqualTo(DEFAULT_ALCOHOL);
         assertThat(testPoints.getNotes()).isEqualTo(DEFAULT_NOTES);
+
+        // Validate the Points in Elasticsearch
+        Points pointsEs = pointsSearchRepository.findOne(testPoints.getId());
+        assertThat(pointsEs).isEqualToComparingFieldByField(testPoints);
     }
 
     @Test
@@ -212,6 +221,7 @@ public class PointsResourceIntTest {
     public void updatePoints() throws Exception {
         // Initialize the database
         pointsRepository.saveAndFlush(points);
+        pointsSearchRepository.save(points);
         int databaseSizeBeforeUpdate = pointsRepository.findAll().size();
 
         // Update the points
@@ -237,6 +247,10 @@ public class PointsResourceIntTest {
         assertThat(testPoints.getMeals()).isEqualTo(UPDATED_MEALS);
         assertThat(testPoints.getAlcohol()).isEqualTo(UPDATED_ALCOHOL);
         assertThat(testPoints.getNotes()).isEqualTo(UPDATED_NOTES);
+
+        // Validate the Points in Elasticsearch
+        Points pointsEs = pointsSearchRepository.findOne(testPoints.getId());
+        assertThat(pointsEs).isEqualToComparingFieldByField(testPoints);
     }
 
     @Test
@@ -262,6 +276,7 @@ public class PointsResourceIntTest {
     public void deletePoints() throws Exception {
         // Initialize the database
         pointsRepository.saveAndFlush(points);
+        pointsSearchRepository.save(points);
         int databaseSizeBeforeDelete = pointsRepository.findAll().size();
 
         // Get the points
@@ -269,9 +284,32 @@ public class PointsResourceIntTest {
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
 
+        // Validate Elasticsearch is empty
+        boolean pointsExistsInEs = pointsSearchRepository.exists(points.getId());
+        assertThat(pointsExistsInEs).isFalse();
+
         // Validate the database is empty
         List<Points> pointsList = pointsRepository.findAll();
         assertThat(pointsList).hasSize(databaseSizeBeforeDelete - 1);
+    }
+
+    @Test
+    @Transactional
+    public void searchPoints() throws Exception {
+        // Initialize the database
+        pointsRepository.saveAndFlush(points);
+        pointsSearchRepository.save(points);
+
+        // Search the points
+        restPointsMockMvc.perform(get("/api/_search/points?query=id:" + points.getId()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(points.getId().intValue())))
+            .andExpect(jsonPath("$.[*].date").value(hasItem(DEFAULT_DATE.toString())))
+            .andExpect(jsonPath("$.[*].exercise").value(hasItem(DEFAULT_EXERCISE)))
+            .andExpect(jsonPath("$.[*].meals").value(hasItem(DEFAULT_MEALS)))
+            .andExpect(jsonPath("$.[*].alcohol").value(hasItem(DEFAULT_ALCOHOL)))
+            .andExpect(jsonPath("$.[*].notes").value(hasItem(DEFAULT_NOTES.toString())));
     }
 
     @Test

@@ -4,6 +4,7 @@ import com.jhproj.JhprojApp;
 
 import com.jhproj.domain.Weight;
 import com.jhproj.repository.WeightRepository;
+import com.jhproj.repository.search.WeightSearchRepository;
 import com.jhproj.web.rest.errors.ExceptionTranslator;
 
 import org.junit.Before;
@@ -52,6 +53,9 @@ public class WeightResourceIntTest {
     private WeightRepository weightRepository;
 
     @Autowired
+    private WeightSearchRepository weightSearchRepository;
+
+    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Autowired
@@ -70,7 +74,7 @@ public class WeightResourceIntTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final WeightResource weightResource = new WeightResource(weightRepository);
+        final WeightResource weightResource = new WeightResource(weightRepository, weightSearchRepository);
         this.restWeightMockMvc = MockMvcBuilders.standaloneSetup(weightResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -92,6 +96,7 @@ public class WeightResourceIntTest {
 
     @Before
     public void initTest() {
+        weightSearchRepository.deleteAll();
         weight = createEntity(em);
     }
 
@@ -112,6 +117,10 @@ public class WeightResourceIntTest {
         Weight testWeight = weightList.get(weightList.size() - 1);
         assertThat(testWeight.getTimestamp()).isEqualTo(DEFAULT_TIMESTAMP);
         assertThat(testWeight.getWeight()).isEqualTo(DEFAULT_WEIGHT);
+
+        // Validate the Weight in Elasticsearch
+        Weight weightEs = weightSearchRepository.findOne(testWeight.getId());
+        assertThat(weightEs).isEqualToComparingFieldByField(testWeight);
     }
 
     @Test
@@ -212,6 +221,7 @@ public class WeightResourceIntTest {
     public void updateWeight() throws Exception {
         // Initialize the database
         weightRepository.saveAndFlush(weight);
+        weightSearchRepository.save(weight);
         int databaseSizeBeforeUpdate = weightRepository.findAll().size();
 
         // Update the weight
@@ -231,6 +241,10 @@ public class WeightResourceIntTest {
         Weight testWeight = weightList.get(weightList.size() - 1);
         assertThat(testWeight.getTimestamp()).isEqualTo(UPDATED_TIMESTAMP);
         assertThat(testWeight.getWeight()).isEqualTo(UPDATED_WEIGHT);
+
+        // Validate the Weight in Elasticsearch
+        Weight weightEs = weightSearchRepository.findOne(testWeight.getId());
+        assertThat(weightEs).isEqualToComparingFieldByField(testWeight);
     }
 
     @Test
@@ -256,6 +270,7 @@ public class WeightResourceIntTest {
     public void deleteWeight() throws Exception {
         // Initialize the database
         weightRepository.saveAndFlush(weight);
+        weightSearchRepository.save(weight);
         int databaseSizeBeforeDelete = weightRepository.findAll().size();
 
         // Get the weight
@@ -263,9 +278,29 @@ public class WeightResourceIntTest {
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
 
+        // Validate Elasticsearch is empty
+        boolean weightExistsInEs = weightSearchRepository.exists(weight.getId());
+        assertThat(weightExistsInEs).isFalse();
+
         // Validate the database is empty
         List<Weight> weightList = weightRepository.findAll();
         assertThat(weightList).hasSize(databaseSizeBeforeDelete - 1);
+    }
+
+    @Test
+    @Transactional
+    public void searchWeight() throws Exception {
+        // Initialize the database
+        weightRepository.saveAndFlush(weight);
+        weightSearchRepository.save(weight);
+
+        // Search the weight
+        restWeightMockMvc.perform(get("/api/_search/weights?query=id:" + weight.getId()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(weight.getId().intValue())))
+            .andExpect(jsonPath("$.[*].timestamp").value(hasItem(sameInstant(DEFAULT_TIMESTAMP))))
+            .andExpect(jsonPath("$.[*].weight").value(hasItem(DEFAULT_WEIGHT.doubleValue())));
     }
 
     @Test

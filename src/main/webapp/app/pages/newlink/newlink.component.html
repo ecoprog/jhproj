@@ -1,0 +1,15 @@
+<h1>New link example</h1>
+<span jhiTranslate="jhprojApp.newlink.home.title"></span>
+<input type="radio" name="colors" (click)="color='lightgreen'"> Green</input>
+<input type="radio" name="colors" (click)="color='yellow'"> Yellow</input>
+<input type="radio" name="colors" (click)="color='cyan'"> Cyan</input>
+<div [highlightDirec]="color" defaultColor="blue">{{newLinkString}}</div>
+<!-- -->
+<app-vote-taker></app-vote-taker>
+<app-parent></app-parent>
+
+<!-- Dynamic component loader -->
+<app-add-banner [ads]="ads"></app-add-banner> 
+
+<!-- Sandboxing -->
+<app-hero-bios></app-hero-bios>

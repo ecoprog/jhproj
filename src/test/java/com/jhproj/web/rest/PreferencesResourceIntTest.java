@@ -4,6 +4,7 @@ import com.jhproj.JhprojApp;
 
 import com.jhproj.domain.Preferences;
 import com.jhproj.repository.PreferencesRepository;
+import com.jhproj.repository.search.PreferencesSearchRepository;
 import com.jhproj.web.rest.errors.ExceptionTranslator;
 
 import org.junit.Before;
@@ -48,6 +49,9 @@ public class PreferencesResourceIntTest {
     private PreferencesRepository preferencesRepository;
 
     @Autowired
+    private PreferencesSearchRepository preferencesSearchRepository;
+
+    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Autowired
@@ -66,7 +70,7 @@ public class PreferencesResourceIntTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final PreferencesResource preferencesResource = new PreferencesResource(preferencesRepository);
+        final PreferencesResource preferencesResource = new PreferencesResource(preferencesRepository, preferencesSearchRepository);
         this.restPreferencesMockMvc = MockMvcBuilders.standaloneSetup(preferencesResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -88,6 +92,7 @@ public class PreferencesResourceIntTest {
 
     @Before
     public void initTest() {
+        preferencesSearchRepository.deleteAll();
         preferences = createEntity(em);
     }
 
@@ -108,6 +113,10 @@ public class PreferencesResourceIntTest {
         Preferences testPreferences = preferencesList.get(preferencesList.size() - 1);
         assertThat(testPreferences.getWeightUnits()).isEqualTo(DEFAULT_WEIGHT_UNITS);
         assertThat(testPreferences.getWeeklyGoal()).isEqualTo(DEFAULT_WEEKLY_GOAL);
+
+        // Validate the Preferences in Elasticsearch
+        Preferences preferencesEs = preferencesSearchRepository.findOne(testPreferences.getId());
+        assertThat(preferencesEs).isEqualToComparingFieldByField(testPreferences);
     }
 
     @Test
@@ -208,6 +217,7 @@ public class PreferencesResourceIntTest {
     public void updatePreferences() throws Exception {
         // Initialize the database
         preferencesRepository.saveAndFlush(preferences);
+        preferencesSearchRepository.save(preferences);
         int databaseSizeBeforeUpdate = preferencesRepository.findAll().size();
 
         // Update the preferences
@@ -227,6 +237,10 @@ public class PreferencesResourceIntTest {
         Preferences testPreferences = preferencesList.get(preferencesList.size() - 1);
         assertThat(testPreferences.getWeightUnits()).isEqualTo(UPDATED_WEIGHT_UNITS);
         assertThat(testPreferences.getWeeklyGoal()).isEqualTo(UPDATED_WEEKLY_GOAL);
+
+        // Validate the Preferences in Elasticsearch
+        Preferences preferencesEs = preferencesSearchRepository.findOne(testPreferences.getId());
+        assertThat(preferencesEs).isEqualToComparingFieldByField(testPreferences);
     }
 
     @Test
@@ -252,6 +266,7 @@ public class PreferencesResourceIntTest {
     public void deletePreferences() throws Exception {
         // Initialize the database
         preferencesRepository.saveAndFlush(preferences);
+        preferencesSearchRepository.save(preferences);
         int databaseSizeBeforeDelete = preferencesRepository.findAll().size();
 
         // Get the preferences
@@ -259,9 +274,29 @@ public class PreferencesResourceIntTest {
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
 
+        // Validate Elasticsearch is empty
+        boolean preferencesExistsInEs = preferencesSearchRepository.exists(preferences.getId());
+        assertThat(preferencesExistsInEs).isFalse();
+
         // Validate the database is empty
         List<Preferences> preferencesList = preferencesRepository.findAll();
         assertThat(preferencesList).hasSize(databaseSizeBeforeDelete - 1);
+    }
+
+    @Test
+    @Transactional
+    public void searchPreferences() throws Exception {
+        // Initialize the database
+        preferencesRepository.saveAndFlush(preferences);
+        preferencesSearchRepository.save(preferences);
+
+        // Search the preferences
+        restPreferencesMockMvc.perform(get("/api/_search/preferences?query=id:" + preferences.getId()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(preferences.getId().intValue())))
+            .andExpect(jsonPath("$.[*].weightUnits").value(hasItem(DEFAULT_WEIGHT_UNITS.toString())))
+            .andExpect(jsonPath("$.[*].weeklyGoal").value(hasItem(DEFAULT_WEEKLY_GOAL)));
     }
 
     @Test

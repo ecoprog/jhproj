@@ -1,0 +1,33 @@
+{
+    "jhprojApp": {
+        "component" : {
+            "home": {
+                "title": "Component EN",
+                "createLabel": "Create a new Points",
+                "createOrEditLabel": "Create or edit a Points",
+                "search": "Search for Points"
+            },
+            "created": "A new Points is created with identifier {{ param }}",
+            "updated": "A Points is updated with identifier {{ param }}",
+            "deleted": "A Points is deleted with identifier {{ param }}",
+            "delete": {
+                "question": "Are you sure you want to delete Points {{ id }}?"
+            },
+            "detail": {
+                "title": "Component Detail EN"
+            },
+            "dialog": {
+                "title": "Component Dialog EN"
+            },
+            "dialogedit": {
+                "title": "Component Edit Dialog EN"
+            },
+            "date": "Date",
+            "exercise": "Exercise",
+            "meals": "Meals",
+            "alcohol": "Alcohol",
+            "notes": "Notes",
+            "user": "User"
+        }
+    }
+}

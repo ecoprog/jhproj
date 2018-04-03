@@ -45,12 +45,6 @@ export class PointsDialogComponent implements OnInit {
 
     save() {
         this.isSaving = true;
-
-        // Convert boolean to int
-        this.points.exercise = (this.points.exercise) ? 1 : 0;
-        this.points.meals = (this.points.meals) ? 1 : 0;
-        this.points.alcohol = (this.points.alcohol) ? 1 : 0;
-
         if (this.points.id !== undefined) {
             this.subscribeToSaveResponse(
                 this.pointsService.update(this.points));

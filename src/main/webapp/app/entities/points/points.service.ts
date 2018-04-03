@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs/Rx';
+import { SERVER_API_URL } from '../../app.constants';
+
 import { JhiDateUtils } from 'ng-jhipster';
 
 import { Points } from './points.model';
@@ -9,8 +11,8 @@ import { ResponseWrapper, createRequestOption } from '../../shared';
 @Injectable()
 export class PointsService {
 
-    private resourceUrl = 'api/points';
-    private resourceSearchUrl = 'api/_search/points';
+    private resourceUrl = SERVER_API_URL + 'api/points';
+    private resourceSearchUrl = SERVER_API_URL + 'api/_search/points';
 
     constructor(private http: Http, private dateUtils: JhiDateUtils) { }
 
@@ -18,8 +20,7 @@ export class PointsService {
         const copy = this.convert(points);
         return this.http.post(this.resourceUrl, copy).map((res: Response) => {
             const jsonResponse = res.json();
-            this.convertItemFromServer(jsonResponse);
-            return jsonResponse;
+            return this.convertItemFromServer(jsonResponse);
         });
     }
 
@@ -27,16 +28,14 @@ export class PointsService {
         const copy = this.convert(points);
         return this.http.put(this.resourceUrl, copy).map((res: Response) => {
             const jsonResponse = res.json();
-            this.convertItemFromServer(jsonResponse);
-            return jsonResponse;
+            return this.convertItemFromServer(jsonResponse);
         });
     }
 
     find(id: number): Observable<Points> {
         return this.http.get(`${this.resourceUrl}/${id}`).map((res: Response) => {
             const jsonResponse = res.json();
-            this.convertItemFromServer(jsonResponse);
-            return jsonResponse;
+            return this.convertItemFromServer(jsonResponse);
         });
     }
 
@@ -56,34 +55,28 @@ export class PointsService {
             .map((res: any) => this.convertResponse(res));
     }
 
-    thisWeek(): Observable<ResponseWrapper> {
-        return this.http.get('api/points-this-week')
-            .map((res: any) => this.convertResponse(res));
-    }
-
-    byWeek(date: string): Observable<ResponseWrapper> {
-        return this.http.get(`api/points-by-week/${date}`)
-            .map((res: any) => this.convertResponse(res));
-    }
-
-    byMonth(month: string): Observable<ResponseWrapper> {
-        return this.http.get(`api/points-by-month/${month}`)
-            .map((res: any) => this.convertResponse(res));
-    }
-
     private convertResponse(res: Response): ResponseWrapper {
         const jsonResponse = res.json();
+        const result = [];
         for (let i = 0; i < jsonResponse.length; i++) {
-            this.convertItemFromServer(jsonResponse[i]);
+            result.push(this.convertItemFromServer(jsonResponse[i]));
         }
-        return new ResponseWrapper(res.headers, jsonResponse, res.status);
+        return new ResponseWrapper(res.headers, result, res.status);
     }
 
-    private convertItemFromServer(entity: any) {
+    /**
+     * Convert a returned JSON object to Points.
+     */
+    private convertItemFromServer(json: any): Points {
+        const entity: Points = Object.assign(new Points(), json);
         entity.date = this.dateUtils
-            .convertLocalDateFromServer(entity.date);
+            .convertLocalDateFromServer(json.date);
+        return entity;
     }
 
+    /**
+     * Convert a Points to a JSON which can be sent to the server.
+     */
     private convert(points: Points): Points {
         const copy: Points = Object.assign({}, points);
         copy.date = this.dateUtils

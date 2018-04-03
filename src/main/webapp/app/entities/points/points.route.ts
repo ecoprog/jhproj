@@ -33,7 +33,7 @@ export const pointsRoute: Routes = [
             'pagingParams': PointsResolvePagingParams
         },
         data: {
-            authorities: ['ROLE_USER'],
+            authorities: [],
             pageTitle: 'jhprojApp.points.home.title'
         },
         canActivate: [UserRouteAccessService]
@@ -41,7 +41,7 @@ export const pointsRoute: Routes = [
         path: 'points/:id',
         component: PointsDetailComponent,
         data: {
-            authorities: ['ROLE_USER'],
+            authorities: [],
             pageTitle: 'jhprojApp.points.home.title'
         },
         canActivate: [UserRouteAccessService]
@@ -53,7 +53,7 @@ export const pointsPopupRoute: Routes = [
         path: 'points-new',
         component: PointsPopupComponent,
         data: {
-            authorities: ['ROLE_USER'],
+            authorities: [],
             pageTitle: 'jhprojApp.points.home.title'
         },
         canActivate: [UserRouteAccessService],
@@ -63,7 +63,7 @@ export const pointsPopupRoute: Routes = [
         path: 'points/:id/edit',
         component: PointsPopupComponent,
         data: {
-            authorities: ['ROLE_USER'],
+            authorities: [],
             pageTitle: 'jhprojApp.points.home.title'
         },
         canActivate: [UserRouteAccessService],
@@ -73,7 +73,7 @@ export const pointsPopupRoute: Routes = [
         path: 'points/:id/delete',
         component: PointsDeletePopupComponent,
         data: {
-            authorities: ['ROLE_USER'],
+            authorities: [],
             pageTitle: 'jhprojApp.points.home.title'
         },
         canActivate: [UserRouteAccessService],

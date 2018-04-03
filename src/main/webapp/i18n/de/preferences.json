@@ -2,22 +2,23 @@
     "jhprojApp": {
         "preferences" : {
             "home": {
-                "title": "Preferenzen",
-                "createLabel": "Preferenzen erstellen",
-                "createOrEditLabel": "Preferenzen erstellen oder bearbeiten"
+                "title": "Preferences",
+                "createLabel": "Preferences erstellen",
+                "createOrEditLabel": "Preferences erstellen oder bearbeiten",
+                "search": "Suche nach Preferences"
             },
-            "created": "Preferenzen erstellt mit ID {{ param }}",
-            "updated": "Preferenzen aktualisiert mit ID {{ param }}",
-            "deleted": "Preferenzen gelöscht mit ID {{ param }}",
+            "created": "Preferences erstellt mit ID {{ param }}",
+            "updated": "Preferences aktualisiert mit ID {{ param }}",
+            "deleted": "Preferences gelöscht mit ID {{ param }}",
             "delete": {
-                "question": "Soll Preferenzen {{ id }} wirklich dauerhaft gelöscht werden?"
+                "question": "Soll Preferences {{ id }} wirklich dauerhaft gelöscht werden?"
             },
             "detail": {
-                "title": "Preferenzen"
+                "title": "Preferences"
             },
-            "weightUnits": "Gewichtseinheit",
-            "weeklyGoal": "Wochenziel",
-            "user": "Nutzer"
+            "weightUnits": "Weight Units",
+            "weeklyGoal": "Weekly Goal",
+            "user": "User"
         }
     }
 }

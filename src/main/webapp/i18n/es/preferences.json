@@ -4,7 +4,8 @@
             "home": {
                 "title": "Preferences",
                 "createLabel": "Crear nuevo Preferences",
-                "createOrEditLabel": "Crear o editar Preferences"
+                "createOrEditLabel": "Crear o editar Preferences",
+                "search": "Search for Preferences"
             },
             "created": "Un nuevo Preferences ha sido creado con el identificador {{ param }}",
             "updated": "Un Preferences ha sido actualizado con el identificador {{ param }}",

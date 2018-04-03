@@ -4,6 +4,7 @@ import com.codahale.metrics.annotation.Timed;
 import com.jhproj.domain.Weight;
 
 import com.jhproj.repository.WeightRepository;
+import com.jhproj.repository.search.WeightSearchRepository;
 import com.jhproj.web.rest.util.HeaderUtil;
 import com.jhproj.web.rest.util.PaginationUtil;
 import io.swagger.annotations.ApiParam;
@@ -23,6 +24,10 @@ import java.net.URISyntaxException;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * REST controller for managing Weight.
@@ -37,8 +42,11 @@ public class WeightResource {
 
     private final WeightRepository weightRepository;
 
-    public WeightResource(WeightRepository weightRepository) {
+    private final WeightSearchRepository weightSearchRepository;
+
+    public WeightResource(WeightRepository weightRepository, WeightSearchRepository weightSearchRepository) {
         this.weightRepository = weightRepository;
+        this.weightSearchRepository = weightSearchRepository;
     }
 
     /**
@@ -56,6 +64,7 @@ public class WeightResource {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new weight cannot already have an ID")).body(null);
         }
         Weight result = weightRepository.save(weight);
+        weightSearchRepository.save(result);
         return ResponseEntity.created(new URI("/api/weights/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -78,6 +87,7 @@ public class WeightResource {
             return createWeight(weight);
         }
         Weight result = weightRepository.save(weight);
+        weightSearchRepository.save(result);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, weight.getId().toString()))
             .body(result);
@@ -123,6 +133,25 @@ public class WeightResource {
     public ResponseEntity<Void> deleteWeight(@PathVariable Long id) {
         log.debug("REST request to delete Weight : {}", id);
         weightRepository.delete(id);
+        weightSearchRepository.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
     }
+
+    /**
+     * SEARCH  /_search/weights?query=:query : search for the weight corresponding
+     * to the query.
+     *
+     * @param query the query of the weight search
+     * @param pageable the pagination information
+     * @return the result of the search
+     */
+    @GetMapping("/_search/weights")
+    @Timed
+    public ResponseEntity<List<Weight>> searchWeights(@RequestParam String query, @ApiParam Pageable pageable) {
+        log.debug("REST request to search for a page of Weights for query {}", query);
+        Page<Weight> page = weightSearchRepository.search(queryStringQuery(query), pageable);
+        HttpHeaders headers = PaginationUtil.generateSearchPaginationHttpHeaders(query, page, "/api/_search/weights");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
+
 }

@@ -14,7 +14,7 @@ import { PaginationConfig } from '../../blocks/config/uib-pagination.config';
 })
 export class PointsComponent implements OnInit, OnDestroy {
 
-    currentAccount: any;
+currentAccount: any;
     points: Points[];
     error: any;
     success: any;
@@ -33,7 +33,7 @@ export class PointsComponent implements OnInit, OnDestroy {
     constructor(
         private pointsService: PointsService,
         private parseLinks: JhiParseLinks,
-        private alertService: JhiAlertService,
+        private jhiAlertService: JhiAlertService,
         private principal: Principal,
         private activatedRoute: ActivatedRoute,
         private router: Router,
@@ -54,12 +54,13 @@ export class PointsComponent implements OnInit, OnDestroy {
     loadAll() {
         if (this.currentSearch) {
             this.pointsService.search({
+                page: this.page - 1,
                 query: this.currentSearch,
                 size: this.itemsPerPage,
                 sort: this.sort()}).subscribe(
-                (res: ResponseWrapper) => this.onSuccess(res.json, res.headers),
-                (res: ResponseWrapper) => this.onError(res.json)
-            );
+                    (res: ResponseWrapper) => this.onSuccess(res.json, res.headers),
+                    (res: ResponseWrapper) => this.onError(res.json)
+                );
             return;
         }
         this.pointsService.query({
@@ -145,6 +146,6 @@ export class PointsComponent implements OnInit, OnDestroy {
         this.points = data;
     }
     private onError(error) {
-        this.alertService.error(error.message, null, null);
+        this.jhiAlertService.error(error.message, null, null);
     }
 }

@@ -4,6 +4,7 @@ import com.jhproj.JhprojApp;
 
 import com.jhproj.domain.BloodPressure;
 import com.jhproj.repository.BloodPressureRepository;
+import com.jhproj.repository.search.BloodPressureSearchRepository;
 import com.jhproj.web.rest.errors.ExceptionTranslator;
 
 import org.junit.Before;
@@ -55,6 +56,9 @@ public class BloodPressureResourceIntTest {
     private BloodPressureRepository bloodPressureRepository;
 
     @Autowired
+    private BloodPressureSearchRepository bloodPressureSearchRepository;
+
+    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Autowired
@@ -73,7 +77,7 @@ public class BloodPressureResourceIntTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final BloodPressureResource bloodPressureResource = new BloodPressureResource(bloodPressureRepository);
+        final BloodPressureResource bloodPressureResource = new BloodPressureResource(bloodPressureRepository, bloodPressureSearchRepository);
         this.restBloodPressureMockMvc = MockMvcBuilders.standaloneSetup(bloodPressureResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -96,6 +100,7 @@ public class BloodPressureResourceIntTest {
 
     @Before
     public void initTest() {
+        bloodPressureSearchRepository.deleteAll();
         bloodPressure = createEntity(em);
     }
 
@@ -117,6 +122,10 @@ public class BloodPressureResourceIntTest {
         assertThat(testBloodPressure.getTimestamp()).isEqualTo(DEFAULT_TIMESTAMP);
         assertThat(testBloodPressure.getSystolic()).isEqualTo(DEFAULT_SYSTOLIC);
         assertThat(testBloodPressure.getDiastolic()).isEqualTo(DEFAULT_DIASTOLIC);
+
+        // Validate the BloodPressure in Elasticsearch
+        BloodPressure bloodPressureEs = bloodPressureSearchRepository.findOne(testBloodPressure.getId());
+        assertThat(bloodPressureEs).isEqualToComparingFieldByField(testBloodPressure);
     }
 
     @Test
@@ -237,6 +246,7 @@ public class BloodPressureResourceIntTest {
     public void updateBloodPressure() throws Exception {
         // Initialize the database
         bloodPressureRepository.saveAndFlush(bloodPressure);
+        bloodPressureSearchRepository.save(bloodPressure);
         int databaseSizeBeforeUpdate = bloodPressureRepository.findAll().size();
 
         // Update the bloodPressure
@@ -258,6 +268,10 @@ public class BloodPressureResourceIntTest {
         assertThat(testBloodPressure.getTimestamp()).isEqualTo(UPDATED_TIMESTAMP);
         assertThat(testBloodPressure.getSystolic()).isEqualTo(UPDATED_SYSTOLIC);
         assertThat(testBloodPressure.getDiastolic()).isEqualTo(UPDATED_DIASTOLIC);
+
+        // Validate the BloodPressure in Elasticsearch
+        BloodPressure bloodPressureEs = bloodPressureSearchRepository.findOne(testBloodPressure.getId());
+        assertThat(bloodPressureEs).isEqualToComparingFieldByField(testBloodPressure);
     }
 
     @Test
@@ -283,6 +297,7 @@ public class BloodPressureResourceIntTest {
     public void deleteBloodPressure() throws Exception {
         // Initialize the database
         bloodPressureRepository.saveAndFlush(bloodPressure);
+        bloodPressureSearchRepository.save(bloodPressure);
         int databaseSizeBeforeDelete = bloodPressureRepository.findAll().size();
 
         // Get the bloodPressure
@@ -290,9 +305,30 @@ public class BloodPressureResourceIntTest {
             .accept(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
 
+        // Validate Elasticsearch is empty
+        boolean bloodPressureExistsInEs = bloodPressureSearchRepository.exists(bloodPressure.getId());
+        assertThat(bloodPressureExistsInEs).isFalse();
+
         // Validate the database is empty
         List<BloodPressure> bloodPressureList = bloodPressureRepository.findAll();
         assertThat(bloodPressureList).hasSize(databaseSizeBeforeDelete - 1);
+    }
+
+    @Test
+    @Transactional
+    public void searchBloodPressure() throws Exception {
+        // Initialize the database
+        bloodPressureRepository.saveAndFlush(bloodPressure);
+        bloodPressureSearchRepository.save(bloodPressure);
+
+        // Search the bloodPressure
+        restBloodPressureMockMvc.perform(get("/api/_search/blood-pressures?query=id:" + bloodPressure.getId()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(bloodPressure.getId().intValue())))
+            .andExpect(jsonPath("$.[*].timestamp").value(hasItem(sameInstant(DEFAULT_TIMESTAMP))))
+            .andExpect(jsonPath("$.[*].systolic").value(hasItem(DEFAULT_SYSTOLIC)))
+            .andExpect(jsonPath("$.[*].diastolic").value(hasItem(DEFAULT_DIASTOLIC)));
     }
 
     @Test

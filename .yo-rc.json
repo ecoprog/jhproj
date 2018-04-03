@@ -38,6 +38,7 @@
       "en",
       "de",
       "es"
-    ]
+    ],
+    "herokuAppName": "jhproj"
   }
 }

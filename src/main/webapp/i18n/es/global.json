@@ -5,8 +5,15 @@
         "menu": {
             "home": "Inicio",
             "jhipster-needle-menu-add-element": "JHipster will add additional menu entries here (do not translate!)",
+            "newlink": "New link ES",
+            "cart": "Cart ES",
+            "component": "Component ES",
             "entities": {
                 "main": "Entidades",
+                "points": "Points",
+                "weight": "Weight",
+                "bloodPressure": "Blood Pressure",
+                "preferences": "Preferences",
                 "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
             },
             "account": {
@@ -29,6 +36,7 @@
                 "audits": "Auditorías",
                 "apidocs": "API",
                 "database": "Base de datos",
+                "elasticsearch-reindex": "Reindex Elasticsearch",
                 "jhipster-needle-menu-add-admin-element": "JHipster will add additional menu entries here (do not translate!)"
             },
             "language": "Idioma"

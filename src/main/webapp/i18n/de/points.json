@@ -2,26 +2,26 @@
     "jhprojApp": {
         "points" : {
             "home": {
-                "title": "Punkte erstellen",
-                "createLabel": "Punkte erstellen",
+                "title": "Points",
+                "createLabel": "Points erstellen",
                 "createOrEditLabel": "Points erstellen oder bearbeiten",
-                "search": "Suche nach Punkten"
+                "search": "Suche nach Points"
             },
-            "created": "Punkte erstellt mit ID {{ param }}",
-            "updated": "Punkte aktualisiert mit ID {{ param }}",
-            "deleted": "Punkte gelöscht mit ID {{ param }}",
+            "created": "Points erstellt mit ID {{ param }}",
+            "updated": "Points aktualisiert mit ID {{ param }}",
+            "deleted": "Points gelöscht mit ID {{ param }}",
             "delete": {
                 "question": "Soll Points {{ id }} wirklich dauerhaft gelöscht werden?"
             },
             "detail": {
-                "title": "Punkte"
+                "title": "Points"
             },
-            "date": "Datum",
-            "exercise": "Aufgabe",
-            "meals": "Mahlzeit",
-            "alcohol": "Alkohol",
-            "notes": "Notiz",
-            "user": "Nutzer"
+            "date": "Date",
+            "exercise": "Exercise",
+            "meals": "Meals",
+            "alcohol": "Alcohol",
+            "notes": "Notes",
+            "user": "User"
         }
     }
 }

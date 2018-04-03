@@ -4,6 +4,7 @@ import com.codahale.metrics.annotation.Timed;
 import com.jhproj.domain.Points;
 
 import com.jhproj.repository.PointsRepository;
+import com.jhproj.repository.search.PointsSearchRepository;
 import com.jhproj.web.rest.util.HeaderUtil;
 import com.jhproj.web.rest.util.PaginationUtil;
 import io.swagger.annotations.ApiParam;
@@ -23,6 +24,10 @@ import java.net.URISyntaxException;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * REST controller for managing Points.
@@ -37,8 +42,11 @@ public class PointsResource {
 
     private final PointsRepository pointsRepository;
 
-    public PointsResource(PointsRepository pointsRepository) {
+    private final PointsSearchRepository pointsSearchRepository;
+
+    public PointsResource(PointsRepository pointsRepository, PointsSearchRepository pointsSearchRepository) {
         this.pointsRepository = pointsRepository;
+        this.pointsSearchRepository = pointsSearchRepository;
     }
 
     /**
@@ -56,6 +64,7 @@ public class PointsResource {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new points cannot already have an ID")).body(null);
         }
         Points result = pointsRepository.save(points);
+        pointsSearchRepository.save(result);
         return ResponseEntity.created(new URI("/api/points/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -78,6 +87,7 @@ public class PointsResource {
             return createPoints(points);
         }
         Points result = pointsRepository.save(points);
+        pointsSearchRepository.save(result);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, points.getId().toString()))
             .body(result);
@@ -123,6 +133,25 @@ public class PointsResource {
     public ResponseEntity<Void> deletePoints(@PathVariable Long id) {
         log.debug("REST request to delete Points : {}", id);
         pointsRepository.delete(id);
+        pointsSearchRepository.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(ENTITY_NAME, id.toString())).build();
     }
+
+    /**
+     * SEARCH  /_search/points?query=:query : search for the points corresponding
+     * to the query.
+     *
+     * @param query the query of the points search
+     * @param pageable the pagination information
+     * @return the result of the search
+     */
+    @GetMapping("/_search/points")
+    @Timed
+    public ResponseEntity<List<Points>> searchPoints(@RequestParam String query, @ApiParam Pageable pageable) {
+        log.debug("REST request to search for a page of Points for query {}", query);
+        Page<Points> page = pointsSearchRepository.search(queryStringQuery(query), pageable);
+        HttpHeaders headers = PaginationUtil.generateSearchPaginationHttpHeaders(query, page, "/api/_search/points");
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+    }
+
 }
